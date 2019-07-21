@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/siddontang/go-mysql/replication"
+	"github.com/wule61/go-mysql/replication"
 )
 
 var name = flag.String("name", "", "binlog file name")

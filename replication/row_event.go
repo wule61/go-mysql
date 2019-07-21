@@ -4,15 +4,17 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pingcap/errors"
 	"github.com/shopspring/decimal"
 	"github.com/siddontang/go-log/log"
-	. "github.com/siddontang/go-mysql/mysql"
+	. "github.com/wule61/go-mysql/mysql"
 	"github.com/siddontang/go/hack"
 )
 
@@ -870,23 +872,45 @@ func decodeBlob(data []byte, meta uint16) (v []byte, n int, err error) {
 	return
 }
 
-func (e *RowsEvent) Dump(w io.Writer) {
-	fmt.Fprintf(w, "TableID: %d\n", e.TableID)
-	fmt.Fprintf(w, "Flags: %d\n", e.Flags)
-	fmt.Fprintf(w, "Column count: %d\n", e.ColumnCount)
+type Row struct {
+	Schema string `json:"schema"`
+	TableName string `json:"table_name"`
+	ColumnCount uint64 `json:"column_count"`
+	OldValues []string `json:"old_valius"`
+	NewValues []string `json:"new_values"`
+}
 
-	fmt.Fprintf(w, "Values:\n")
+func (e *RowsEvent) Dump(w io.Writer) {
+
+	row := &Row{}
+
+	row.Schema = string(e.tables[e.TableID].Schema)
+	row.TableName = string(e.tables[e.TableID].Table)
+	//fmt.Fprintf(w, "Flags: %d\n", e.Flags)
+	row.ColumnCount = e.ColumnCount
+
 	for _, rows := range e.Rows {
-		fmt.Fprintf(w, "--\n")
-		for j, d := range rows {
+		//fmt.Fprintf(w, "--\n")
+		for _, d := range rows {
 			if _, ok := d.([]byte); ok {
-				fmt.Fprintf(w, "%d:%q\n", j, d)
+				row.OldValues = append(row.OldValues,fmt.Sprintf("%q",d))
+				//fmt.Fprintf(w, "%d:%q\n", j, d)
 			} else {
-				fmt.Fprintf(w, "%d:%#v\n", j, d)
+				row.OldValues = append(row.OldValues,fmt.Sprintf("%#v",d))
+				//fmt.Fprintf(w, "%d:%#v\n", j, d)
 			}
 		}
 	}
-	fmt.Fprintln(w)
+
+	bt, err := json.Marshal(row)
+	if err != nil {
+		panic(err)
+	}
+	strings.NewReader(string(bt)).WriteTo(w)
+}
+
+func (e *RowsEvent) DumpData() string {
+	return "heloo"
 }
 
 type RowsQueryEvent struct {
