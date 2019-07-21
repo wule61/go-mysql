@@ -14,7 +14,7 @@ func main() {
 	cfg := replication.BinlogSyncerConfig{
 		ServerID: 100,
 		Flavor:   "mysql",
-		Host:     "rm-2ze2ul50180u6lt37zo.mysql.rds.aliyuncs.com",
+		Host:     "127.0.0.1",
 		Port:     3306,
 		User:     "wule",
 		Password: "Wule!#%&",
