@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+
 	"github.com/wule61/go-mysql/mysql"
 	"github.com/wule61/go-mysql/replication"
 )
@@ -22,7 +23,7 @@ func main() {
 	syncer := replication.NewBinlogSyncer(cfg)
 
 	// Start sync with specified binlog file and position
-	streamer, _ := syncer.StartSync(mysql.Position{"mysql-bin.000187", 0})
+	streamer, _ := syncer.StartSync(mysql.Position{"mysql-bin.000195", 0})
 
 	// or you can start a gtid replication like
 	// streamer, _ := syncer.StartSyncGTID(gtidSet)
@@ -32,28 +33,10 @@ func main() {
 	for {
 
 		ev, _ := streamer.GetEvent(context.Background())
-		// Dump event
 		buf := new(bytes.Buffer)
 		ev.Dump(buf)
 		if buf.Len() != 0 {
 			fmt.Println(buf.String())
 		}
-		//println(ev.Header.EventType.String())
-		//ev.Header.Dump(os.Stdout)
-		//print(ev.Event.Decode(ev.RawData))
 	}
-
-	// or we can use a timeout context
-	//for {
-	//	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	//	ev, err := s.GetEvent(ctx)
-	//	cancel()
-	//
-	//	if err == context.DeadlineExceeded {
-	//		// meet timeout
-	//		continue
-	//	}
-	//
-	//	ev.Dump(os.Stdout)
-	//}
 }

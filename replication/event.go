@@ -6,7 +6,6 @@ import (
 	"io"
 	"strconv"
 	"strings"
-	"time"
 	"unicode"
 
 	"github.com/pingcap/errors"
@@ -34,13 +33,13 @@ func (e *BinlogEvent) Dump(w io.Writer) {
 
 	switch e.Header.EventType {
 	case WRITE_ROWS_EVENTv0, WRITE_ROWS_EVENTv1, WRITE_ROWS_EVENTv2:
-		e.Header.Dump(w)
+		fmt.Fprintf(w, `{"type"": "%s","ts": %v,`, "insert", e.Header.Timestamp)
 		e.Event.Dump(w)
 	case UPDATE_ROWS_EVENTv0, UPDATE_ROWS_EVENTv1, UPDATE_ROWS_EVENTv2:
-		e.Header.Dump(w)
+		fmt.Fprintf(w, `{"type"": "%s","ts": %v,`, "update", e.Header.Timestamp)
 		e.Event.Dump(w)
 	case DELETE_ROWS_EVENTv0, DELETE_ROWS_EVENTv1, DELETE_ROWS_EVENTv2:
-		e.Header.Dump(w)
+		fmt.Fprintf(w, `{"type"": "%s","ts": %v,`, "delete", e.Header.Timestamp)
 		e.Event.Dump(w)
 	}
 }
@@ -108,10 +107,10 @@ func (h *EventHeader) Decode(data []byte) error {
 }
 
 func (h *EventHeader) Dump(w io.Writer) {
-	fmt.Fprintf(w, "=== %s ===\n", EventType(h.EventType))
-	fmt.Fprintf(w, "Date: %s\n", time.Unix(int64(h.Timestamp), 0).Format(TimeFormat))
-	fmt.Fprintf(w, "Log position: %d\n", h.LogPos)
-	fmt.Fprintf(w, "Event size: %d\n", h.EventSize)
+	//fmt.Fprintf(w, "=== %s ===\n", EventType(h.EventType))
+	fmt.Fprintf(w, `"ts"": %v,`, h.Timestamp)
+	//fmt.Fprintf(w, "Log position: %d\n", h.LogPos)
+	//fmt.Fprintf(w, "Event size: %d\n", h.EventSize)
 }
 
 var (
