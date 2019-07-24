@@ -33,13 +33,13 @@ func (e *BinlogEvent) Dump(w io.Writer) {
 
 	switch e.Header.EventType {
 	case WRITE_ROWS_EVENTv0, WRITE_ROWS_EVENTv1, WRITE_ROWS_EVENTv2:
-		fmt.Fprintf(w, `{"type"": "%s","ts": %v,`, "insert", e.Header.Timestamp)
+		fmt.Fprintf(w, `{"type": "%s","ts": %v,`, "insert", e.Header.Timestamp)
 		e.Event.Dump(w)
 	case UPDATE_ROWS_EVENTv0, UPDATE_ROWS_EVENTv1, UPDATE_ROWS_EVENTv2:
-		fmt.Fprintf(w, `{"type"": "%s","ts": %v,`, "update", e.Header.Timestamp)
+		fmt.Fprintf(w, `{"type": "%s","ts": %v,`, "update", e.Header.Timestamp)
 		e.Event.Dump(w)
 	case DELETE_ROWS_EVENTv0, DELETE_ROWS_EVENTv1, DELETE_ROWS_EVENTv2:
-		fmt.Fprintf(w, `{"type"": "%s","ts": %v,`, "delete", e.Header.Timestamp)
+		fmt.Fprintf(w, `{"type": "%s","ts": %v,`, "delete", e.Header.Timestamp)
 		e.Event.Dump(w)
 	}
 }
