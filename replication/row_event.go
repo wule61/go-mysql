@@ -877,7 +877,6 @@ type Row struct {
 	TableName   string   `json:"table_name"`
 	ColumnCount uint64   `json:"column_count"`
 	Values      []string `json:"values"`
-	NewValues   []string `json:"new_values"`
 }
 
 func (e *RowsEvent) Dump(w io.Writer) {
@@ -888,7 +887,7 @@ func (e *RowsEvent) Dump(w io.Writer) {
 	row.ColumnCount = e.ColumnCount
 
 	for i := 0; i < len(e.Rows); i++ {
-		if i == 0 {
+		if i == 0 && len(e.Rows) == 1 {
 			for _, d := range e.Rows[i] {
 				if _, ok := d.([]byte); ok {
 					row.Values = append(row.Values, fmt.Sprintf("%q", d))
@@ -899,9 +898,9 @@ func (e *RowsEvent) Dump(w io.Writer) {
 		} else if i == 1 {
 			for _, d := range e.Rows[i] {
 				if _, ok := d.([]byte); ok {
-					row.NewValues = append(row.NewValues, fmt.Sprintf("%q", d))
+					row.Values = append(row.Values, fmt.Sprintf("%q", d))
 				} else {
-					row.NewValues = append(row.NewValues, fmt.Sprintf("%#v", d))
+					row.Values = append(row.Values, fmt.Sprintf("%#v", d))
 				}
 			}
 		}
